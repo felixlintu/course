@@ -15,16 +15,23 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+     @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+                auth.inMemoryAuthentication().withUser("user").password("password").roles("USER")
+                                .and().withUser("admin").password("admin").roles("ADMIN", "USER");
+        }
+    
     @Autowired
     private UserDetailsService userDetailsService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // no real security at the moment
-        http.authorizeRequests()
-                .anyRequest().permitAll();
-    }
+               http.authorizeRequests()
+                .antMatchers("/admin").hasRole("USER").and().formLogin();
 
+    }
+    
+    
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
